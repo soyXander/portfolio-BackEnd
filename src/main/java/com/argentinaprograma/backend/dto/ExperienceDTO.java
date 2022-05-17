@@ -1,6 +1,5 @@
 package com.argentinaprograma.backend.dto;
 
-
 import lombok.Getter;
 import lombok.Setter;
 
