@@ -30,7 +30,7 @@ public class ExperienceController {
 
 	@PostMapping("/agregar")
 	public ResponseEntity<?> save(@RequestBody ExperienceDTO expDTO) {
-		if (StringUtils.isBlank(expDTO.getCompanyName()))
+		if (StringUtils.isBlank(expDTO.getCompany()))
 			return new ResponseEntity(new Message("El nombre de la empresa es obligatorio"), HttpStatus.BAD_REQUEST);
 
 		if (StringUtils.isBlank(expDTO.getPosition()))
@@ -40,10 +40,11 @@ public class ExperienceController {
 			return new ResponseEntity(new Message("La descripción es obligatoria"), HttpStatus.BAD_REQUEST);
 
 		Experience exp = new Experience(
-				expDTO.getCompanyName(),
+				expDTO.getCompany(),
 				expDTO.getPosition(),
 				expDTO.getDescription());
 		expService.save(exp);
+
 		return new ResponseEntity(new Message("Experiencia agregada"), HttpStatus.CREATED);
 	}
 
@@ -60,7 +61,7 @@ public class ExperienceController {
 		if (!expService.existsById(id))
 			return new ResponseEntity<>(new Message("Experiencia no encontrada"), HttpStatus.NOT_FOUND);
 
-		if (StringUtils.isBlank(expDTO.getCompanyName()))
+		if (StringUtils.isBlank(expDTO.getCompany()))
 			return new ResponseEntity<>(new Message("El nombre de la empresa es obligatorio"), HttpStatus.BAD_REQUEST);
 
 		if (StringUtils.isBlank(expDTO.getPosition()))
@@ -70,7 +71,7 @@ public class ExperienceController {
 			return new ResponseEntity<>(new Message("La descripción es obligatoria"), HttpStatus.BAD_REQUEST);
 
 		Experience exp = expService.findById(id);
-		exp.setCompanyName(expDTO.getCompanyName());
+		exp.setCompany(expDTO.getCompany());
 		exp.setPosition(expDTO.getPosition());
 		exp.setDescription(expDTO.getDescription());
 		expService.update(exp);

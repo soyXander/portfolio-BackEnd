@@ -9,15 +9,15 @@ import lombok.Setter;
  */
 @Getter @Setter
 public class ExperienceDTO {
-	private String companyName;
+	private String company;
 	private String position;
 	private String description;
 
 	public ExperienceDTO() {
 	}
 
-	public ExperienceDTO(String companyName, String position, String description) {
-		this.companyName = companyName;
+	public ExperienceDTO(String company, String position, String description) {
+		this.company = company;
 		this.position = position;
 		this.description = description;
 	}

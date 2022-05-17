@@ -18,14 +18,14 @@ public class Experience {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	private String companyName;
+	private String company;
 	private String position;
 	private String description;
 
 	public Experience() {
 	}
-	public Experience(String companyName, String position, String description) {
-		this.companyName = companyName;
+	public Experience(String company, String position, String description) {
+		this.company = company;
 		this.position = position;
 		this.description = description;
 	}
