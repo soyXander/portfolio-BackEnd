@@ -1,6 +1,5 @@
 package com.argentinaprograma.backend.controller;
 
-import com.argentinaprograma.backend.dto.ExperienceDTO;
 import com.argentinaprograma.backend.dto.SkillDTO;
 import com.argentinaprograma.backend.model.Experience;
 import com.argentinaprograma.backend.model.Skill;
