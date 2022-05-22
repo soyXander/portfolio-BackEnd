@@ -6,6 +6,7 @@ import com.argentinaprograma.backend.service.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -56,16 +57,28 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http.cors().and().csrf().disable()
+		/*http.csrf().disable()
+				.authorizeRequests().antMatchers("/auth/**").permitAll()
+					.antMatchers("/**\/lista").permitAll()
+					.antMatchers(HttpMethod.GET, "/**\/lista").permitAll()
+				.anyRequest().authenticated().and()
+					.exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and().sessionManagement()
+						.sessionCreationPolicy(SessionCreationPolicy.STATELESS);*/
+
+		/*http.cors().and().csrf().disable()
 				.exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
 				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-				.authorizeRequests()
+				.authorizeRequests().antMatchers("/auth/**").permitAll()
+				.antMatchers("/**\**").permitAll()
+				.anyRequest().authenticated();*/
+
+		http.cors().and().csrf().disable().
+				authorizeRequests()
 				.antMatchers("/auth/**").permitAll()
-				.antMatchers("/experiencia/lista").permitAll()
-				.antMatchers("/educacion/lista").permitAll()
-				.antMatchers("/habilidad/lista").permitAll()
-				.antMatchers("/proyecto/lista").permitAll()
-				.anyRequest().authenticated();
+				.anyRequest().authenticated()
+				.and()
+				.exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
+				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
 		http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 	}

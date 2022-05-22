@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,6 +30,7 @@ public class ExperienceController {
 	}
 
 	@PostMapping("/agregar")
+	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<?> save(@RequestBody ExperienceDTO expDTO) {
 		if (StringUtils.isBlank(expDTO.getCompany()))
 			return new ResponseEntity(new Message("El nombre de la empresa es obligatorio"), HttpStatus.BAD_REQUEST);
@@ -49,6 +51,7 @@ public class ExperienceController {
 	}
 
 	@GetMapping("/detalle/{id}")
+	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<Experience> getById(@PathVariable("id") Long id){
 		if(!expService.existsById(id))
 			return new ResponseEntity(new Message("No existe"), HttpStatus.NOT_FOUND);
@@ -57,6 +60,7 @@ public class ExperienceController {
 	}
 
 	@PutMapping("/editar/{id}")
+	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<?> update(@PathVariable Long id, @RequestBody ExperienceDTO expDTO) {
 		if (!expService.existsById(id))
 			return new ResponseEntity<>(new Message("Experiencia no encontrada"), HttpStatus.NOT_FOUND);
@@ -80,6 +84,7 @@ public class ExperienceController {
 	}
 
 	@DeleteMapping("/eliminar/{id}")
+	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<?> delete(@PathVariable Long id) {
 		if (!expService.existsById(id))
 			return new ResponseEntity<>(new Message("Experiencia no encontrada"), HttpStatus.NOT_FOUND);

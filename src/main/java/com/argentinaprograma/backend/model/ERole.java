@@ -4,6 +4,6 @@ package com.argentinaprograma.backend.model;
  * @author Xander.-
  */
 public enum ERole {
-	ADMIN,
-	USER
+	ROLE_USER,
+	ROLE_ADMIN
 }
