@@ -20,8 +20,8 @@ public class JwtUtils {
 	private String jwtSecret;
 	@Value("${argprog.backend.jwtExpirationMs}")
 	private int jwtExpirationMs;
-	public String generateJwtToken(Authentication authentication) {
-		UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
+	public String generateJwtToken(Authentication auth) {
+		UserDetailsImpl userPrincipal = (UserDetailsImpl) auth.getPrincipal();
 		return Jwts.builder()
 				.setSubject((userPrincipal.getUsername()))
 				.setIssuedAt(new Date())

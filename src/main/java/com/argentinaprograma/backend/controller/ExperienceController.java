@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,6 +29,7 @@ public class ExperienceController {
 		return new ResponseEntity(expService.list(), HttpStatus.OK);
 	}
 
+	@PreAuthorize("hasRole('ADMIN')")
 	@PostMapping("/agregar")
 	public ResponseEntity<?> save(@RequestBody ExperienceDTO expDTO) {
 		if (StringUtils.isBlank(expDTO.getCompany()))
@@ -48,6 +50,7 @@ public class ExperienceController {
 		return new ResponseEntity(new Message("Experiencia agregada"), HttpStatus.CREATED);
 	}
 
+	@PreAuthorize("hasRole('ADMIN')")
 	@GetMapping("/detalle/{id}")
 	public ResponseEntity<Experience> getById(@PathVariable("id") Long id){
 		if(!expService.existsById(id))
@@ -56,6 +59,7 @@ public class ExperienceController {
 		return new ResponseEntity(experience, HttpStatus.OK);
 	}
 
+	@PreAuthorize("hasRole('ADMIN')")
 	@PutMapping("/editar/{id}")
 	public ResponseEntity<?> update(@PathVariable Long id, @RequestBody ExperienceDTO expDTO) {
 		if (!expService.existsById(id))
@@ -79,6 +83,7 @@ public class ExperienceController {
 		return new ResponseEntity<>(new Message("Experiencia actualizada"), HttpStatus.OK);
 	}
 
+	@PreAuthorize("hasRole('ADMIN')")
 	@DeleteMapping("/eliminar/{id}")
 	public ResponseEntity<?> delete(@PathVariable Long id) {
 		if (!expService.existsById(id))

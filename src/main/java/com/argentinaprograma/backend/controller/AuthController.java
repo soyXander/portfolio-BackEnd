@@ -1,11 +1,11 @@
 package com.argentinaprograma.backend.controller;
 
+import com.argentinaprograma.backend.dto.JwtDTO;
 import com.argentinaprograma.backend.model.ERole;
 import com.argentinaprograma.backend.model.Role;
 import com.argentinaprograma.backend.model.User;
 import com.argentinaprograma.backend.payload.request.LoginRequest;
 import com.argentinaprograma.backend.payload.request.SignupRequest;
-import com.argentinaprograma.backend.payload.response.JwtResponse;
 import com.argentinaprograma.backend.repository.RoleRepository;
 import com.argentinaprograma.backend.repository.UserRepository;
 import com.argentinaprograma.backend.security.jwt.JwtUtils;
@@ -23,9 +23,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * @author Xander.-
@@ -35,7 +33,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/auth")
 public class AuthController {
 	@Autowired
-	AuthenticationManager authenticationManager;
+	AuthenticationManager authManager;
 	@Autowired
 	UserRepository userRepository;
 	@Autowired
@@ -45,17 +43,14 @@ public class AuthController {
 	@Autowired
 	JwtUtils jwtUtils;
 	@PostMapping("/login")
-	public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
-		Authentication authentication = authenticationManager.authenticate(
+	public ResponseEntity<JwtDTO> loginUser(@Valid @RequestBody LoginRequest loginRequest) {
+		Authentication authentication = authManager.authenticate(
 				new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		String jwt = jwtUtils.generateJwtToken(authentication);
-
 		UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-		List<String> roles = userDetails.getAuthorities().stream()
-				.map(item -> item.getAuthority())
-				.collect(Collectors.toList());
-		return new ResponseEntity(new JwtResponse(jwt, userDetails.getId(), userDetails.getUsername(), userDetails.getEmail(), roles), HttpStatus.OK);
+		JwtDTO jwtDTO = new JwtDTO(jwt, userDetails.getUsername(), userDetails.getAuthorities());
+		return new ResponseEntity(jwtDTO, HttpStatus.OK);
 	}
 	@PostMapping("/signup")
 	public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
@@ -73,7 +68,7 @@ public class AuthController {
 		Set<String> strRoles = signUpRequest.getRole();
 		Set<Role> roles = new HashSet<>();
 		if (strRoles == null) {
-			Role userRole = roleRepository.findByName(ERole.USER)
+			Role userRole = roleRepository.findByName(ERole.ROLE_USER)
 					.orElseThrow(() -> new RuntimeException("Error: No se encuentra el rol."));
 			roles.add(userRole);
 		}
@@ -81,12 +76,12 @@ public class AuthController {
 			strRoles.forEach(role -> {
 				switch (role) {
 					case "admin":
-						Role adminRole = roleRepository.findByName(ERole.ADMIN)
+						Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
 								.orElseThrow(() -> new RuntimeException("Error: No se encuentra el rol."));
 						roles.add(adminRole);
 						break;
 					default:
-						Role userRole = roleRepository.findByName(ERole.USER)
+						Role userRole = roleRepository.findByName(ERole.ROLE_USER)
 								.orElseThrow(() -> new RuntimeException("Error: No se encuentra el rol."));
 						roles.add(userRole);
 				}
