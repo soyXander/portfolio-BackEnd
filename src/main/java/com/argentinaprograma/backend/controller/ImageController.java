@@ -1,7 +1,8 @@
 package com.argentinaprograma.backend.controller;
 
+import com.argentinaprograma.backend.dto.ImageDTO;
 import com.argentinaprograma.backend.model.Image;
-import com.argentinaprograma.backend.repository.ImageRepository;
+import com.argentinaprograma.backend.service.IImageService;
 import com.argentinaprograma.backend.utils.ImageUtil;
 import com.argentinaprograma.backend.utils.Message;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,48 +24,56 @@ import java.util.Optional;
 @RequestMapping("/image")
 public class ImageController {
     @Autowired
-    ImageRepository imgRepository;
+    IImageService imageService;
 
     @GetMapping("/ver/{name}")
     public ResponseEntity<byte[]> getImage(@PathVariable("name") String name) {
-        final Optional<Image> dbImg = imgRepository.findByName(name);
+
+        Optional<Image> img = imageService.findByName(name);
+        if (!img.isPresent()) {
+            return new ResponseEntity(new Message("No existe"), HttpStatus.NOT_FOUND);
+        }
 
         return ResponseEntity
                 .ok()
-                .contentType(MediaType.valueOf(dbImg.get().getType()))
-                .body(ImageUtil.decompressImage(dbImg.get().getImage()));
+                .contentType(MediaType.valueOf(img.get().getType()))
+                .body(ImageUtil.decompressImage(img.get().getImage()));
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping(path = {"/info/{name}"})
     public Image getImageDetails(@PathVariable("name") String name) throws IOException {
-
-        final Optional<Image> dbImage = imgRepository.findByName(name);
-
+        Optional<Image> img = imageService.findByName(name);
+        if (!img.isPresent()) {
+            return null;
+        }
         return Image.builder()
-                .name(dbImage.get().getName())
-                .type(dbImage.get().getType())
-                .image(ImageUtil.decompressImage(dbImage.get().getImage())).build();
+                .id(img.get().getId())
+                .name(img.get().getName())
+                .type(img.get().getType())
+                .image(ImageUtil.decompressImage(img.get().getImage())).build();
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/subir")
-    public ResponseEntity<Message> uplaodImage(@RequestParam("image") MultipartFile file)
-            throws IOException {
-
-        imgRepository.save(Image.builder()
-                .name(file.getOriginalFilename())
-                .type(file.getContentType())
-                .image(ImageUtil.compressImage(file.getBytes())).build());
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(new Message("Imagen subida exitosamente: " +
-                        file.getOriginalFilename()));
+    public ResponseEntity<?> save(@RequestBody ImageDTO imgDTO, @RequestParam("image") MultipartFile file) {
+        try {
+            Image img = Image.builder()
+                    .name(imgDTO.getName())
+                    .type(imgDTO.getType())
+                    .image(ImageUtil.compressImage(file.getBytes()))
+                    .build();
+            imageService.saveImage(img);
+            return new ResponseEntity(new Message("Imagen subida: "+ file.getOriginalFilename()), HttpStatus.OK);
+        } catch (IOException e) {
+            return new ResponseEntity(new Message("Error al subir la imagen"), HttpStatus.BAD_REQUEST);
+        }
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/eliminar/{name}")
     public ResponseEntity<Message> deleteImage(@PathVariable("name") String name) {
-        imgRepository.deleteByName(name);
+        imageService.deleteByName(name);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new Message("Imagen eliminada exitosamente: " + name));
     }
