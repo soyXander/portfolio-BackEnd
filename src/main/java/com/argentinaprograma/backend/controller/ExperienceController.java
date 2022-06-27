@@ -113,7 +113,8 @@ public class ExperienceController {
 		expById.setDescription(expDTO.getDescription());
 		if (file != null) {
 			try {
-				imageService.deleteImage(expById.getImage().getId());
+				if (expById.getImage() != null)
+					imageService.deleteImage(expById.getImage().getId());
 				Image img = new Image(
 						timeStamp + "-" + file.getOriginalFilename(),
 						file.getContentType(),
