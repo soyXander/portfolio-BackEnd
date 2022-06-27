@@ -30,6 +30,7 @@ public class ExperienceController {
 	IExperienceService expService;
 	@Autowired
 	IImageService imageService;
+	String timeStamp = String.valueOf(System.currentTimeMillis());
 
 	@GetMapping("/lista")
 	public ResponseEntity<Experience> list() {
@@ -39,18 +40,17 @@ public class ExperienceController {
 
 	@PreAuthorize("hasRole('ADMIN')")
 	@PostMapping("/agregar")
-	public ResponseEntity<?> save(@RequestParam("experience") String expDTO, @RequestParam(value = "image", required = false) MultipartFile file) throws IOException {
+	public ResponseEntity<?> save(@RequestParam("experience") String exp, @RequestParam(value = "image", required = false) MultipartFile file) throws IOException {
 		ObjectMapper mapper = new ObjectMapper();
-		ExperienceDTO exp = mapper.readValue(expDTO, ExperienceDTO.class);
+		ExperienceDTO expDTO = mapper.readValue(exp, ExperienceDTO.class);
 
-		if (StringUtils.isBlank(exp.getCompany()))
+		if (StringUtils.isBlank(expDTO.getCompany()))
 			return new ResponseEntity(new Message("El nombre de la empresa es obligatorio"), HttpStatus.BAD_REQUEST);
-		if (StringUtils.isBlank(exp.getPosition()))
+		if (StringUtils.isBlank(expDTO.getPosition()))
 			return new ResponseEntity(new Message("El puesto es obligatorio"), HttpStatus.BAD_REQUEST);
-		if (StringUtils.isBlank(exp.getDescription()))
+		if (StringUtils.isBlank(expDTO.getDescription()))
 			return new ResponseEntity(new Message("La descripción es obligatoria"), HttpStatus.BAD_REQUEST);
 
-		String timeStamp = String.valueOf(System.currentTimeMillis());
 		if (file != null) {
 			try {
 				Image img = new Image(
@@ -60,9 +60,9 @@ public class ExperienceController {
 				imageService.saveImage(img);
 
 				Experience experience = new Experience(
-						exp.getCompany(),
-						exp.getPosition(),
-						exp.getDescription(),
+						expDTO.getCompany(),
+						expDTO.getPosition(),
+						expDTO.getDescription(),
 						img);
 				expService.save(experience);
 
@@ -73,9 +73,9 @@ public class ExperienceController {
 		}
 		else {
 			Experience experience = new Experience(
-					exp.getCompany(),
-					exp.getPosition(),
-					exp.getDescription(),
+					expDTO.getCompany(),
+					expDTO.getPosition(),
+					expDTO.getDescription(),
 					null);
 			expService.save(experience);
 
@@ -94,26 +94,38 @@ public class ExperienceController {
 
 	@PreAuthorize("hasRole('ADMIN')")
 	@PutMapping("/editar/{id}")
-	public ResponseEntity<?> update(@PathVariable Long id, @RequestBody ExperienceDTO expDTO) {
+	public ResponseEntity<?> update(@PathVariable Long id, @RequestParam("experience") String exp, @RequestParam(value = "image", required = false) MultipartFile file) throws IOException {
+		ObjectMapper mapper = new ObjectMapper();
+		ExperienceDTO expDTO = mapper.readValue(exp, ExperienceDTO.class);
+
 		if (!expService.existsById(id))
 			return new ResponseEntity<>(new Message("Experiencia no encontrada"), HttpStatus.NOT_FOUND);
-
 		if (StringUtils.isBlank(expDTO.getCompany()))
 			return new ResponseEntity<>(new Message("El nombre de la empresa es obligatorio"), HttpStatus.BAD_REQUEST);
-
 		if (StringUtils.isBlank(expDTO.getPosition()))
 			return new ResponseEntity<>(new Message("El puesto es obligatorio"), HttpStatus.BAD_REQUEST);
-
 		if (StringUtils.isBlank(expDTO.getDescription()))
 			return new ResponseEntity<>(new Message("La descripción es obligatoria"), HttpStatus.BAD_REQUEST);
 
-		Experience exp = expService.findById(id);
-		exp.setCompany(expDTO.getCompany());
-		exp.setPosition(expDTO.getPosition());
-		exp.setDescription(expDTO.getDescription());
-		expService.update(exp);
-
-		return new ResponseEntity<>(new Message("Experiencia actualizada"), HttpStatus.OK);
+		Experience expById = expService.findById(id);
+		expById.setCompany(expDTO.getCompany());
+		expById.setPosition(expDTO.getPosition());
+		expById.setDescription(expDTO.getDescription());
+		if (file != null) {
+			try {
+				imageService.deleteImage(expById.getImage().getId());
+				Image img = new Image(
+						timeStamp + "-" + file.getOriginalFilename(),
+						file.getContentType(),
+						ImageUtil.compressImage(file.getBytes()));
+				imageService.saveImage(img);
+				expById.setImage(img);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		expService.update(expById);
+		return new ResponseEntity<>(new Message("Experiencia actualizada con éxito"), HttpStatus.OK);
 	}
 
 	@PreAuthorize("hasRole('ADMIN')")
