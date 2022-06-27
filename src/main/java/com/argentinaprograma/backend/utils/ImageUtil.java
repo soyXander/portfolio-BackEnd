@@ -44,4 +44,11 @@ public class ImageUtil {
         }
         return outputStream.toByteArray();
     }
+
+    public static boolean imgExtValidator(String contentType) {
+        return contentType.equals("image/png")
+                || contentType.equals("image/jpg")
+                || contentType.equals("image/jpeg")
+                || contentType.equals("image/gif");
+    }
 }

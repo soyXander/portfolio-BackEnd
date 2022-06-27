@@ -50,6 +50,8 @@ public class ExperienceController {
 			return new ResponseEntity(new Message("El puesto es obligatorio"), HttpStatus.BAD_REQUEST);
 		if (StringUtils.isBlank(expDTO.getDescription()))
 			return new ResponseEntity(new Message("La descripción es obligatoria"), HttpStatus.BAD_REQUEST);
+		if (file != null && !ImageUtil.imgExtValidator(file.getContentType()))
+			return new ResponseEntity(new Message("La extensión de la imagen debe ser: jpg, jpeg, png o gif"), HttpStatus.BAD_REQUEST);
 
 		if (file != null) {
 			try {
@@ -106,6 +108,8 @@ public class ExperienceController {
 			return new ResponseEntity<>(new Message("El puesto es obligatorio"), HttpStatus.BAD_REQUEST);
 		if (StringUtils.isBlank(expDTO.getDescription()))
 			return new ResponseEntity<>(new Message("La descripción es obligatoria"), HttpStatus.BAD_REQUEST);
+		if (file != null && !ImageUtil.imgExtValidator(file.getContentType()))
+			return new ResponseEntity(new Message("La extensión de la imagen debe ser: jpg, jpeg, png o gif"), HttpStatus.BAD_REQUEST);
 
 		Experience expById = expService.findById(id);
 		expById.setCompany(expDTO.getCompany());
