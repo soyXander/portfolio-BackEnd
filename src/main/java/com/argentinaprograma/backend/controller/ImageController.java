@@ -58,11 +58,10 @@ public class ImageController {
     @PostMapping("/subir")
     public ResponseEntity<?> save(@RequestBody ImageDTO imgDTO, @RequestParam("image") MultipartFile file) {
         try {
-            Image img = Image.builder()
-                    .name(imgDTO.getName())
-                    .type(imgDTO.getType())
-                    .image(ImageUtil.compressImage(file.getBytes()))
-                    .build();
+            Image img = new Image(
+                    file.getOriginalFilename(),
+                    file.getContentType(),
+                    ImageUtil.compressImage(file.getBytes()));
             imageService.saveImage(img);
             return new ResponseEntity(new Message("Imagen subida: "+ file.getOriginalFilename()), HttpStatus.OK);
         } catch (IOException e) {

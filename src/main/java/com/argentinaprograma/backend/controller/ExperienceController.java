@@ -2,15 +2,21 @@ package com.argentinaprograma.backend.controller;
 
 import com.argentinaprograma.backend.dto.ExperienceDTO;
 import com.argentinaprograma.backend.model.Experience;
+import com.argentinaprograma.backend.model.Image;
 import com.argentinaprograma.backend.service.IExperienceService;
+import com.argentinaprograma.backend.service.IImageService;
+import com.argentinaprograma.backend.utils.ImageUtil;
 import com.argentinaprograma.backend.utils.Message;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -22,6 +28,8 @@ import java.util.List;
 public class ExperienceController {
 	@Autowired
 	IExperienceService expService;
+	@Autowired
+	IImageService imageService;
 
 	@GetMapping("/lista")
 	public ResponseEntity<Experience> list() {
@@ -31,23 +39,48 @@ public class ExperienceController {
 
 	@PreAuthorize("hasRole('ADMIN')")
 	@PostMapping("/agregar")
-	public ResponseEntity<?> save(@RequestBody ExperienceDTO expDTO) {
-		if (StringUtils.isBlank(expDTO.getCompany()))
+	public ResponseEntity<?> save(@RequestParam("experience") String expDTO, @RequestParam(value = "image", required = false) MultipartFile file) throws IOException {
+		ObjectMapper mapper = new ObjectMapper();
+		ExperienceDTO exp = mapper.readValue(expDTO, ExperienceDTO.class);
+
+		if (StringUtils.isBlank(exp.getCompany()))
 			return new ResponseEntity(new Message("El nombre de la empresa es obligatorio"), HttpStatus.BAD_REQUEST);
-
-		if (StringUtils.isBlank(expDTO.getPosition()))
+		if (StringUtils.isBlank(exp.getPosition()))
 			return new ResponseEntity(new Message("El puesto es obligatorio"), HttpStatus.BAD_REQUEST);
-
-		if (StringUtils.isBlank(expDTO.getDescription()))
+		if (StringUtils.isBlank(exp.getDescription()))
 			return new ResponseEntity(new Message("La descripción es obligatoria"), HttpStatus.BAD_REQUEST);
 
-		Experience exp = new Experience(
-				expDTO.getCompany(),
-				expDTO.getPosition(),
-				expDTO.getDescription());
-		expService.save(exp);
+		String timeStamp = String.valueOf(System.currentTimeMillis());
+		if (file != null) {
+			try {
+				Image img = new Image(
+                        timeStamp + "-" + file.getOriginalFilename() ,
+						file.getContentType(),
+						ImageUtil.compressImage(file.getBytes()));
+				imageService.saveImage(img);
 
-		return new ResponseEntity(new Message("Experiencia agregada"), HttpStatus.CREATED);
+				Experience experience = new Experience(
+						exp.getCompany(),
+						exp.getPosition(),
+						exp.getDescription(),
+						img);
+				expService.save(experience);
+
+				return new ResponseEntity(new Message("Experiencia guardada con éxito"), HttpStatus.CREATED);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		else {
+			Experience experience = new Experience(
+					exp.getCompany(),
+					exp.getPosition(),
+					exp.getDescription(),
+					null);
+			expService.save(experience);
+
+			return new ResponseEntity(new Message("Experiencia guardada con éxito"), HttpStatus.CREATED);
+		}
 	}
 
 	@PreAuthorize("hasRole('ADMIN')")
