@@ -2,7 +2,7 @@ package com.argentinaprograma.backend.security.jwt;
 
 import java.util.Date;
 
-import com.argentinaprograma.backend.service.UserDetailsImpl;
+import com.argentinaprograma.backend.service.UserImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,7 +21,7 @@ public class JwtUtils {
 	@Value("${argprog.backend.jwtExpirationMs}")
 	private int jwtExpirationMs;
 	public String generateJwtToken(Authentication auth) {
-		UserDetailsImpl userPrincipal = (UserDetailsImpl) auth.getPrincipal();
+		UserImpl userPrincipal = (UserImpl) auth.getPrincipal();
 		return Jwts.builder()
 				.setSubject((userPrincipal.getUsername()))
 				.setIssuedAt(new Date())

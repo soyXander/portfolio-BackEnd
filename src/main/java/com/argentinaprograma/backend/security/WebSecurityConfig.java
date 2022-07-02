@@ -2,7 +2,7 @@ package com.argentinaprograma.backend.security;
 
 import com.argentinaprograma.backend.security.jwt.AuthEntryPointJwt;
 import com.argentinaprograma.backend.security.jwt.AuthTokenFilter;
-import com.argentinaprograma.backend.service.UserDetailsServiceImpl;
+import com.argentinaprograma.backend.service.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,7 +26,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Autowired
-	UserDetailsServiceImpl userDetailsService;
+    UserServiceImpl userDetailsService;
 
 	@Autowired
 	AuthEntryPointJwt jwtEntryPoint;
