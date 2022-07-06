@@ -9,7 +9,6 @@ import com.argentinaprograma.backend.payload.request.SignupRequest;
 import com.argentinaprograma.backend.repository.RoleRepository;
 import com.argentinaprograma.backend.repository.UserRepository;
 import com.argentinaprograma.backend.security.jwt.JwtUtils;
-import com.argentinaprograma.backend.service.UserImpl;
 import com.argentinaprograma.backend.utils.Message;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -48,8 +47,7 @@ public class AuthController {
 				new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		String jwt = jwtUtils.generateJwtToken(authentication);
-		UserImpl userDetails = (UserImpl) authentication.getPrincipal();
-		JwtDTO jwtDTO = new JwtDTO(jwt, userDetails.getUsername(), userDetails.getAuthorities());
+		JwtDTO jwtDTO = new JwtDTO(jwt);
 		return new ResponseEntity(jwtDTO, HttpStatus.OK);
 	}
 	@PostMapping("/signup")
