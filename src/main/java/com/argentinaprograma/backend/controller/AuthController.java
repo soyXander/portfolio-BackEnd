@@ -21,6 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.text.ParseException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -49,6 +50,13 @@ public class AuthController {
 		String jwt = jwtUtils.generateJwtToken(authentication);
 		JwtDTO jwtDTO = new JwtDTO(jwt);
 		return new ResponseEntity(jwtDTO, HttpStatus.OK);
+	}
+
+	@PostMapping("/refresh")
+	public ResponseEntity<JwtDTO> refreshToken(@Valid @RequestBody JwtDTO jwtDTO) throws ParseException {
+		String token = jwtUtils.refreshToken(jwtDTO);
+		JwtDTO jwt = new JwtDTO(token);
+		return new ResponseEntity(jwt, HttpStatus.OK);
 	}
 	@PostMapping("/signup")
 	public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {

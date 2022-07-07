@@ -1,10 +1,15 @@
 package com.argentinaprograma.backend.security.jwt;
 
+import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.argentinaprograma.backend.dto.JwtDTO;
 import com.argentinaprograma.backend.service.UserImpl;
+import com.nimbusds.jwt.JWT;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.JWTParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -54,5 +59,26 @@ public class JwtUtils {
 			logger.error("JWT claims string is empty: {}", e.getMessage());
 		}
 		return false;
+	}
+
+	public String refreshToken(JwtDTO jwtDTO) throws ParseException {
+		try {
+			Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(jwtDTO.getToken());
+		} catch (ExpiredJwtException e) {
+			JWT jwt = JWTParser.parse(jwtDTO.getToken());
+			JWTClaimsSet claims = jwt.getJWTClaimsSet();
+			String userName = claims.getSubject();
+			List<String> roles = (List<String>)claims.getClaim("roles");
+
+			String refreshedToken = Jwts.builder()
+					.setSubject(userName)
+					.claim("roles", roles)
+					.setIssuedAt(new Date())
+					.setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
+					.signWith(SignatureAlgorithm.HS512, jwtSecret)
+					.compact();
+			return refreshedToken;
+		}
+		return null;
 	}
 }
