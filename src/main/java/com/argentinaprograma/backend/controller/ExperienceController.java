@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
 
 /**
  * @author Xander.-
@@ -34,12 +33,11 @@ public class ExperienceController {
 
 	@GetMapping("/lista")
 	public ResponseEntity<Experience> list() {
-		List<Experience> list = expService.list();
 		return new ResponseEntity(expService.list(), HttpStatus.OK);
 	}
 
 	@PreAuthorize("hasRole('ADMIN')")
-	@PostMapping("/agregar")
+	@PostMapping("/guardar")
 	public ResponseEntity<?> save(@RequestParam("experience") String exp, @RequestParam(value = "image", required = false) MultipartFile file) throws IOException {
 		ObjectMapper mapper = new ObjectMapper();
 		ExperienceDTO expDTO = mapper.readValue(exp, ExperienceDTO.class);
@@ -56,7 +54,7 @@ public class ExperienceController {
 		if (file != null) {
 			try {
 				Image img = new Image(
-                        timeStamp + "-" + file.getOriginalFilename() ,
+                        "exp" + timeStamp + "-" + file.getOriginalFilename() ,
 						file.getContentType(),
 						ImageUtil.compressImage(file.getBytes()));
 				imageService.saveImage(img);
@@ -70,7 +68,7 @@ public class ExperienceController {
 
 				return new ResponseEntity(new Message("Experiencia guardada con éxito"), HttpStatus.CREATED);
 			} catch (IOException e) {
-				throw new RuntimeException(e);
+				return new ResponseEntity(new Message("Error al guardar la experiencia"), HttpStatus.BAD_REQUEST);
 			}
 		}
 		else {
@@ -95,7 +93,7 @@ public class ExperienceController {
 	}
 
 	@PreAuthorize("hasRole('ADMIN')")
-	@PutMapping("/editar/{id}")
+	@PutMapping("/actualizar/{id}")
 	public ResponseEntity<?> update(@PathVariable Long id, @RequestParam("experience") String exp, @RequestParam(value = "image", required = false) MultipartFile file) throws IOException {
 		ObjectMapper mapper = new ObjectMapper();
 		ExperienceDTO expDTO = mapper.readValue(exp, ExperienceDTO.class);
