@@ -1,15 +1,22 @@
 package com.argentinaprograma.backend.controller;
 
 import com.argentinaprograma.backend.dto.ProjectDTO;
+import com.argentinaprograma.backend.model.Image;
 import com.argentinaprograma.backend.model.Project;
+import com.argentinaprograma.backend.service.IImageService;
 import com.argentinaprograma.backend.service.IProjectService;
+import com.argentinaprograma.backend.utils.ImageUtil;
 import com.argentinaprograma.backend.utils.Message;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -22,6 +29,9 @@ public class ProjectController {
 
 	@Autowired
 	IProjectService projectService;
+	@Autowired
+	IImageService imageService;
+	String timeStamp = String.valueOf(System.currentTimeMillis());
 
 	@GetMapping("/lista")
 	public ResponseEntity<Project> list() {
@@ -29,26 +39,54 @@ public class ProjectController {
 		return new ResponseEntity(projectService.list(), HttpStatus.OK);
 	}
 
-	@PostMapping("/agregar")
-	public ResponseEntity<?> save(@RequestBody ProjectDTO projectDTO) {
-		if (StringUtils.isBlank(projectDTO.getProject()))
+	@PreAuthorize("hasRole('ADMIN')")
+	@PostMapping("/guardar")
+	public ResponseEntity<?> save(@RequestParam("project") String proj, @RequestParam(value = "image", required = false) MultipartFile file) throws IOException {
+		ObjectMapper mapper = new ObjectMapper();
+		ProjectDTO projDTO = mapper.readValue(proj, ProjectDTO.class);
+
+		if (StringUtils.isBlank(projDTO.getProject()))
 			return new ResponseEntity(new Message("El nombre del proyecto es obligatorio"), HttpStatus.BAD_REQUEST);
-
-		if (StringUtils.isBlank(projectDTO.getTechnology()))
+		if (StringUtils.isBlank(projDTO.getTechnology()))
 			return new ResponseEntity(new Message("La tecnología es obligatoria"), HttpStatus.BAD_REQUEST);
-
-		if (StringUtils.isBlank(projectDTO.getDescription()))
+		if (StringUtils.isBlank(projDTO.getDescription()))
 			return new ResponseEntity(new Message("La descripción es obligatoria"), HttpStatus.BAD_REQUEST);
+		if (file != null && !ImageUtil.imgExtValidator(file.getContentType()))
+			return new ResponseEntity(new Message("La extension de la imagen debe ser: jpg, png o gif"), HttpStatus.BAD_REQUEST);
 
-		Project project = new Project(
-				projectDTO.getProject(),
-				projectDTO.getTechnology(),
-				projectDTO.getDescription());
-		projectService.save(project);
+		if (file != null) {
+			try {
+				Image img = new Image(
+						"proj-" + timeStamp + "-" + file.getOriginalFilename(),
+						file.getContentType(),
+						ImageUtil.compressImage(file.getBytes()));
+				imageService.saveImage(img);
 
-		return new ResponseEntity(new Message("Proyecto agregado"), HttpStatus.CREATED);
+				Project project = new Project(
+						projDTO.getProject(),
+						projDTO.getTechnology(),
+						projDTO.getDescription(),
+						img);
+				projectService.save(project);
+
+				return new ResponseEntity(new Message("Proyecto guardado con éxito"), HttpStatus.OK);
+			} catch (Exception e) {
+				return new ResponseEntity(new Message("Error al guardar el proyecto"), HttpStatus.BAD_REQUEST);
+			}
+		}
+		else {
+			Project project = new Project(
+					projDTO.getProject(),
+					projDTO.getTechnology(),
+					projDTO.getDescription(),
+					null);
+			projectService.save(project);
+
+			return new ResponseEntity(new Message("Proyecto guardado con éxito"), HttpStatus.OK);
+		}
 	}
 
+	@PreAuthorize("hasRole('ADMIN')")
 	@GetMapping("/detalle/{id}")
 	public ResponseEntity<Project> getById(@PathVariable("id") Long id){
 		if(!projectService.existsById(id))
@@ -57,29 +95,46 @@ public class ProjectController {
 		return new ResponseEntity(project, HttpStatus.OK);
 	}
 
-	@PutMapping("/editar/{id}")
-	public ResponseEntity<?> update(@RequestBody ProjectDTO projectDTO, @PathVariable("id") Long id){
+	@PreAuthorize("hasRole('ADMIN')")
+	@PutMapping("/actualizar/{id}")
+	public ResponseEntity<?> update(@PathVariable("id") Long id, @RequestParam("project") String proj, @RequestParam(value = "image", required = false) MultipartFile file) throws IOException {
+		ObjectMapper mapper = new ObjectMapper();
+		ProjectDTO projDTO = mapper.readValue(proj, ProjectDTO.class);
+
 		if(!projectService.existsById(id))
-			return new ResponseEntity(new Message("No existe"), HttpStatus.NOT_FOUND);
-
-		if (StringUtils.isBlank(projectDTO.getProject()))
+			return new ResponseEntity(new Message("Proyecto no encontrado"), HttpStatus.NOT_FOUND);
+		if (StringUtils.isBlank(projDTO.getProject()))
 			return new ResponseEntity(new Message("El nombre del proyecto es obligatorio"), HttpStatus.BAD_REQUEST);
-
-		if (StringUtils.isBlank(projectDTO.getTechnology()))
+		if (StringUtils.isBlank(projDTO.getTechnology()))
 			return new ResponseEntity(new Message("La tecnología es obligatoria"), HttpStatus.BAD_REQUEST);
-
-		if (StringUtils.isBlank(projectDTO.getDescription()))
+		if (StringUtils.isBlank(projDTO.getDescription()))
 			return new ResponseEntity(new Message("La descripción es obligatoria"), HttpStatus.BAD_REQUEST);
+		if (file != null && !ImageUtil.imgExtValidator(file.getContentType()))
+			return new ResponseEntity(new Message("La extension de la imagen debe ser: jpg, png o gif"), HttpStatus.BAD_REQUEST);
 
-		Project project = projectService.findById(id);
-		project.setProject(projectDTO.getProject());
-		project.setTechnology(projectDTO.getTechnology());
-		project.setDescription(projectDTO.getDescription());
-		projectService.update(project);
-
-		return new ResponseEntity(new Message("Proyecto actualizado"), HttpStatus.OK);
+		Project projById = projectService.findById(id);
+		projById.setProject(projDTO.getProject());
+		projById.setTechnology(projDTO.getTechnology());
+		projById.setDescription(projDTO.getDescription());
+		if (file != null) {
+			try {
+				if (projById.getImage() != null)
+					imageService.deleteImage(projById.getImage().getId());
+				Image img = new Image(
+						"proj-" + timeStamp + "-" + file.getOriginalFilename(),
+						file.getContentType(),
+						ImageUtil.compressImage(file.getBytes()));
+				imageService.saveImage(img);
+				projById.setImage(img);
+			} catch (IOException e) {
+				throw new RuntimeException("Error al guardar la imagen");
+			}
+		}
+		projectService.update(projById);
+		return new ResponseEntity(new Message("Proyecto actualizado con exito"), HttpStatus.OK);
 	}
 
+	@PreAuthorize("hasRole('ADMIN')")
 	@DeleteMapping("/eliminar/{id}")
 	public ResponseEntity<?> delete(@PathVariable("id") Long id){
 		if(!projectService.existsById(id))

@@ -19,30 +19,37 @@ public class ProjectService implements IProjectService {
 	@Autowired
 	ProjectRepository projectRepository;
 
+	@Override
 	public List<Project> list() {
 		return projectRepository.findAll();
 	}
 
+	@Override
 	public void save(Project project) {
 		projectRepository.save(project);
 	}
 
+	@Override
 	public void delete(Long id) {
 		projectRepository.deleteById(id);
 	}
 
+	@Override
 	public void update(Project project) {
 		projectRepository.save(project);
 	}
 
+	@Override
 	public Project findById(Long id) {
 		return projectRepository.findById(id).orElse(null);
 	}
 
+	@Override
 	public boolean existsById(Long id) {
 		return projectRepository.existsById(id);
 	}
 
+	@Override
 	public Optional<Project> getOne(Long id) {
 		return projectRepository.findById(id);
 	}

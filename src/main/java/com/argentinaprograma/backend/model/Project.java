@@ -4,10 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import net.bytebuddy.utility.dispatcher.JavaDispatcher;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 /**
  * @author Xander.-
@@ -22,13 +19,17 @@ public class Project {
 	private String project;
 	private String technology;
 	private String description;
+	@OneToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "image_id")
+	private Image image;
 
 	public Project() {
 	}
 
-	public Project(String project, String technology, String description) {
+	public Project(String project, String technology, String description, Image image) {
 		this.project = project;
 		this.technology = technology;
 		this.description = description;
+		this.image = image;
 	}
 }
