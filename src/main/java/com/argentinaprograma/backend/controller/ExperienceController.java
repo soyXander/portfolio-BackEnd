@@ -54,7 +54,7 @@ public class ExperienceController {
 		if (file != null) {
 			try {
 				Image img = new Image(
-                        "exp" + timeStamp + "-" + file.getOriginalFilename() ,
+                        "exp-" + timeStamp + "-" + file.getOriginalFilename(),
 						file.getContentType(),
 						ImageUtil.compressImage(file.getBytes()));
 				imageService.saveImage(img);
@@ -118,13 +118,13 @@ public class ExperienceController {
 				if (expById.getImage() != null)
 					imageService.deleteImage(expById.getImage().getId());
 				Image img = new Image(
-						timeStamp + "-" + file.getOriginalFilename(),
+						"exp-" + timeStamp + "-" + file.getOriginalFilename(),
 						file.getContentType(),
 						ImageUtil.compressImage(file.getBytes()));
 				imageService.saveImage(img);
 				expById.setImage(img);
 			} catch (IOException e) {
-				throw new RuntimeException(e);
+				throw new RuntimeException("Error al guardar la imagen");
 			}
 		}
 		expService.update(expById);

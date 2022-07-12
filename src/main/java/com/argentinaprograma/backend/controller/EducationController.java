@@ -54,7 +54,7 @@ public class EducationController {
 		if (file != null) {
 			try {
 				Image img = new Image(
-						"edu" + timeStamp + "-" + file.getOriginalFilename(),
+						"edu-" + timeStamp + "-" + file.getOriginalFilename(),
 						file.getContentType(),
 						ImageUtil.compressImage(file.getBytes()));
 				imageService.saveImage(img);
@@ -116,7 +116,7 @@ public class EducationController {
 		if (file != null) {
 			try {
 				Image img = new Image(
-						"edu" + timeStamp + "-" + file.getOriginalFilename(),
+						"edu-" + timeStamp + "-" + file.getOriginalFilename(),
 						file.getContentType(),
 						ImageUtil.compressImage(file.getBytes()));
 				imageService.saveImage(img);

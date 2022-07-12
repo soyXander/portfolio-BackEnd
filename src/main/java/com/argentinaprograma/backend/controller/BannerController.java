@@ -53,7 +53,7 @@ public class BannerController {
         if (file != null) {
             try {
                 Image img = new Image(
-                        timeStamp + "-banner-" + file.getOriginalFilename(),
+                        "banner-" + timeStamp + file.getOriginalFilename(),
                         file.getContentType(),
                         ImageUtil.compressImage(file.getBytes()));
                 imageService.saveImage(img);
@@ -79,7 +79,7 @@ public class BannerController {
                 if (bannerById != null)
                     imageService.deleteImage(bannerById.getImage().getId());
                 Image img = new Image(
-                        timeStamp + "-banner-" + file.getOriginalFilename(),
+                        "banner-" + timeStamp + file.getOriginalFilename(),
                         file.getContentType(),
                         ImageUtil.compressImage(file.getBytes()));
                 imageService.saveImage(img);
