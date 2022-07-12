@@ -83,6 +83,7 @@ public class EducationController {
 		}
 	}
 
+	@PreAuthorize("hasRole('ADMIN')")
 	@GetMapping("/detalle/{id}")
 	public ResponseEntity<Education> getById(@PathVariable("id") Long id){
 		if(!eduService.existsById(id))
@@ -91,29 +92,44 @@ public class EducationController {
 		return new ResponseEntity(education, HttpStatus.OK);
 	}
 
+	@PreAuthorize("hasRole('ADMIN')")
 	@PutMapping("/actualizar/{id}")
-	public ResponseEntity<?> update(@PathVariable Long id, @RequestBody EducationDTO eduDTO) {
-		if (!eduService.existsById(id))
-			return new ResponseEntity(new Message("No existe"), HttpStatus.NOT_FOUND);
+	public ResponseEntity<?> update(@PathVariable Long id, @RequestParam("education") String edu, @RequestParam(value = "image", required = false) MultipartFile file) throws IOException {
+		ObjectMapper mapper = new ObjectMapper();
+		EducationDTO eduDTO = mapper.readValue(edu, EducationDTO.class);
 
+		if (!eduService.existsById(id))
+			return new ResponseEntity(new Message("Educación no encontrada"), HttpStatus.NOT_FOUND);
 		if (StringUtils.isBlank(eduDTO.getInstitute()))
 			return new ResponseEntity(new Message("El nombre del instituto es obligatorio"), HttpStatus.BAD_REQUEST);
-
 		if (StringUtils.isBlank(eduDTO.getCertification()))
 			return new ResponseEntity(new Message("El certificado es obligatorio"), HttpStatus.BAD_REQUEST);
-
 		if (StringUtils.isBlank(eduDTO.getDescription()))
 			return new ResponseEntity(new Message("La descripción es obligatoria"), HttpStatus.BAD_REQUEST);
+		if (file != null && !ImageUtil.imgExtValidator(file.getContentType()))
+			return new ResponseEntity(new Message("La extensión de la imagen debe ser: jpg, jpeg, png o gif"), HttpStatus.BAD_REQUEST);
 
-		Education edu = eduService.getOne(id).get();
-		edu.setInstitute(eduDTO.getInstitute());
-		edu.setCertification(eduDTO.getCertification());
-		edu.setDescription(eduDTO.getDescription());
-		eduService.update(edu);
-
-		return new ResponseEntity(new Message("Educación actualizada"), HttpStatus.OK);
+		Education eduById = eduService.findById(id);
+		eduById.setInstitute(eduDTO.getInstitute());
+		eduById.setCertification(eduDTO.getCertification());
+		eduById.setDescription(eduDTO.getDescription());
+		if (file != null) {
+			try {
+				Image img = new Image(
+						"edu" + timeStamp + "-" + file.getOriginalFilename(),
+						file.getContentType(),
+						ImageUtil.compressImage(file.getBytes()));
+				imageService.saveImage(img);
+				eduById.setImage(img);
+			} catch (Exception e) {
+				return new ResponseEntity(new Message("Error al guardar la imagen de educación"), HttpStatus.BAD_REQUEST);
+			}
+		}
+		eduService.update(eduById);
+		return new ResponseEntity(new Message("Educación actualizada con éxito"), HttpStatus.OK);
 	}
 
+	@PreAuthorize("hasRole('ADMIN')")
 	@DeleteMapping("/eliminar/{id}")
 	public ResponseEntity<?> delete(@PathVariable Long id) {
 		if (!eduService.existsById(id))
