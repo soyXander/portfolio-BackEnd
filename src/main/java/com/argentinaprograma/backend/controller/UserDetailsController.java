@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * @author Xander.-
@@ -32,12 +33,11 @@ public class UserDetailsController {
     IImageService imageService;
     String timeStamp = String.valueOf(System.currentTimeMillis());
 
-    /*@PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/lista")
     public ResponseEntity<UserDetails> list() {
         List<UserDetails> list = userDetService.list();
         return new ResponseEntity(userDetService.list(), HttpStatus.OK);
-    }*/
+    }
 
     @GetMapping("/ver/{id}")
     public ResponseEntity<UserDetails> get(@PathVariable("id") Long id) {
