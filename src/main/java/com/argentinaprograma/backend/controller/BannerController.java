@@ -49,7 +49,7 @@ public class BannerController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/guardar")
-    public ResponseEntity<?> save(@RequestParam(value = "image") MultipartFile file) throws IOException {
+    public ResponseEntity<?> save(@RequestParam(value = "image", required = false) MultipartFile file) throws IOException {
         if (file != null) {
             try {
                 Image img = new Image(
