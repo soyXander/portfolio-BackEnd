@@ -37,7 +37,7 @@ public class EmailService {
             @Override
             public void prepare(MimeMessage mimeMessage) throws Exception {
                 mimeMessage.setRecipient(Message.RecipientType.TO, new InternetAddress(emailTo));
-                mimeMessage.setSubject("Portfolio - " + contactFormDTO.getName() + "quiere contactarte");
+                mimeMessage.setSubject("Portfolio - " + contactFormDTO.getName() + " quiere contactarte");
 
                 MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
 
