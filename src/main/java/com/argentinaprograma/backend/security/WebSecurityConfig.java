@@ -65,6 +65,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/**/lista").permitAll()
 				.antMatchers("/**/ver/**").permitAll()
 				.antMatchers("/image/ver/**").permitAll()
+				.antMatchers("/contacto/**").permitAll()
 				.anyRequest().authenticated()
 				.and()
 				.exceptionHandling().authenticationEntryPoint(jwtEntryPoint)
