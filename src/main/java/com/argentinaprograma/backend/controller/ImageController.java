@@ -19,9 +19,9 @@ import java.util.Optional;
 /**
  * @author Xander.-
  */
-@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
-@RequestMapping("/image")
+@RequestMapping("/api/image")
+@CrossOrigin(origins = "*")
 public class ImageController {
     @Autowired
     IImageService imageService;

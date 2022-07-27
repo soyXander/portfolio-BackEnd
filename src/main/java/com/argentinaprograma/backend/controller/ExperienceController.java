@@ -22,8 +22,8 @@ import java.io.IOException;
  * @author Xander.-
  */
 @RestController
-@RequestMapping("/experiencia")
-@CrossOrigin(origins = "http://localhost:4200/")
+@RequestMapping("/api/experiencia")
+@CrossOrigin(origins = "*")
 public class ExperienceController {
 	@Autowired
 	IExperienceService expService;

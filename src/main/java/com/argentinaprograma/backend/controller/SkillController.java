@@ -18,8 +18,8 @@ import java.util.List;
  * @author Xander.-
  */
 @RestController
-@RequestMapping("/habilidad")
-@CrossOrigin(origins = "http://localhost:4200/")
+@RequestMapping("/api/habilidad")
+@CrossOrigin(origins = "*")
 public class SkillController {
 
 	@Autowired

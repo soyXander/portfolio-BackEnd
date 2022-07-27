@@ -23,8 +23,8 @@ import java.util.List;
  * @author Xander.-
  */
 @RestController
-@RequestMapping("/detalles-usuario")
-@CrossOrigin(origins = "http://localhost:4200")
+@RequestMapping("/api/detalles-usuario")
+@CrossOrigin(origins = "*")
 public class UserDetailsController {
 
     @Autowired

@@ -22,8 +22,8 @@ import java.io.IOException;
  * @author Xander.-
  */
 @RestController
-@RequestMapping("/educacion")
-@CrossOrigin(origins = "http://localhost:4200/")
+@RequestMapping("/api/education")
+@CrossOrigin(origins = "*")
 public class EducationController {
 	@Autowired
 	IEducationService eduService;

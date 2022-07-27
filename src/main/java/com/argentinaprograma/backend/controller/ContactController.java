@@ -16,8 +16,8 @@ import java.io.IOException;
  * @author Xander.-
  */
 @RestController
-@RequestMapping("/contacto")
-@CrossOrigin(origins = "http://localhost:4200/")
+@RequestMapping("/api/contacto")
+@CrossOrigin(origins = "*")
 public class ContactController {
 
     @Autowired

@@ -1,14 +1,11 @@
 package com.argentinaprograma.backend.controller;
 
-import com.argentinaprograma.backend.dto.ImageDTO;
 import com.argentinaprograma.backend.model.Banner;
 import com.argentinaprograma.backend.model.Image;
 import com.argentinaprograma.backend.service.IBannerService;
 import com.argentinaprograma.backend.service.IImageService;
 import com.argentinaprograma.backend.utils.ImageUtil;
 import com.argentinaprograma.backend.utils.Message;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,8 +20,8 @@ import java.util.List;
  * @author Xander.-
  */
 @RestController
-@RequestMapping("/banner")
-@CrossOrigin(origins = "http://localhost:4200")
+@RequestMapping("/api/banner")
+@CrossOrigin(origins = "*")
 public class BannerController {
 
     @Autowired

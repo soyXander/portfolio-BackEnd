@@ -28,9 +28,9 @@ import java.util.Set;
 /**
  * @author Xander.-
  */
-@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
+@CrossOrigin(origins = "*")
 public class AuthController {
 	@Autowired
 	AuthenticationManager authManager;
