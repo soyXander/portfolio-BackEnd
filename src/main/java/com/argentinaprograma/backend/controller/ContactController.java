@@ -5,6 +5,7 @@ import com.argentinaprograma.backend.service.EmailService;
 import com.argentinaprograma.backend.utils.Message;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.validator.internal.constraintvalidators.hv.EmailValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +32,8 @@ public class ContactController {
             return new ResponseEntity(new Message("El nombre es obligatorio"), HttpStatus.BAD_REQUEST);
         if (StringUtils.isBlank(contactFormDTO.getEmail()))
             return new ResponseEntity(new Message("El email es obligatorio"), HttpStatus.BAD_REQUEST);
+        if (!new EmailValidator().isValid(contactFormDTO.getEmail(), null))
+            return new ResponseEntity(new Message("El email no es valido"), HttpStatus.BAD_REQUEST);
         if (StringUtils.isBlank(contactFormDTO.getMessage()))
             return new ResponseEntity(new Message("El mensaje es obligatorio"), HttpStatus.BAD_REQUEST);
         emailService.send(contactFormDTO);
