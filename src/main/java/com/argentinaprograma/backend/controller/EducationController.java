@@ -44,43 +44,37 @@ public class EducationController {
 
 		if (StringUtils.isBlank(eduDTO.getInstitute()))
 			return new ResponseEntity(new Message("El nombre del instituto es obligatorio"), HttpStatus.BAD_REQUEST);
-		if (StringUtils.isBlank(eduDTO.getCertification()))
-			return new ResponseEntity(new Message("El certificado es obligatorio"), HttpStatus.BAD_REQUEST);
+		if (StringUtils.isBlank(eduDTO.getDegree()))
+			return new ResponseEntity(new Message("El título es obligatorio"), HttpStatus.BAD_REQUEST);
 		if (StringUtils.isBlank(eduDTO.getDescription()))
 			return new ResponseEntity(new Message("La descripción es obligatoria"), HttpStatus.BAD_REQUEST);
+		if (StringUtils.isBlank(eduDTO.getStartDate()) || StringUtils.isBlank(eduDTO.getEndDate()))
+			return new ResponseEntity<>(new Message("El periodo de estudio es obligatorio"), HttpStatus.BAD_REQUEST);
 		if (file != null && !ImageUtil.imgExtValidator(file.getContentType()))
 			return new ResponseEntity(new Message("La extensión de la imagen debe ser: jpg, jpeg, png o gif"), HttpStatus.BAD_REQUEST);
 
+		Image img = null;
 		if (file != null) {
 			try {
-				Image img = new Image(
+				img = new Image(
 						"edu-" + timeStamp + "-" + file.getOriginalFilename(),
 						file.getContentType(),
 						ImageUtil.compressImage(file.getBytes()));
 				imageService.saveImage(img);
-
-				Education education = new Education(
-						eduDTO.getInstitute(),
-						eduDTO.getCertification(),
-						eduDTO.getDescription(),
-						img);
-				eduService.save(education);
-
-				return new ResponseEntity(new Message("Educación guardada con éxito"), HttpStatus.OK);
 			} catch (Exception e) {
-				return new ResponseEntity(new Message("Error al guardar la educación"), HttpStatus.BAD_REQUEST);
+				return new ResponseEntity(new Message("Error al guardar la imagen de educación"), HttpStatus.BAD_REQUEST);
 			}
 		}
-		else {
-			Education education = new Education(
-					eduDTO.getInstitute(),
-					eduDTO.getCertification(),
-					eduDTO.getDescription(),
-					null);
-			eduService.save(education);
 
-			return new ResponseEntity(new Message("Educación agregada"), HttpStatus.CREATED);
-		}
+		Education education = new Education(
+			eduDTO.getInstitute(),
+			eduDTO.getDegree(),
+			eduDTO.getDescription(),
+			eduDTO.getStartDate(),
+			eduDTO.getEndDate(),
+			img);
+		eduService.save(education);
+		return new ResponseEntity(new Message("Educación agregada"), HttpStatus.CREATED);
 	}
 
 	@PreAuthorize("hasRole('ADMIN')")
@@ -102,17 +96,21 @@ public class EducationController {
 			return new ResponseEntity(new Message("Educación no encontrada"), HttpStatus.NOT_FOUND);
 		if (StringUtils.isBlank(eduDTO.getInstitute()))
 			return new ResponseEntity(new Message("El nombre del instituto es obligatorio"), HttpStatus.BAD_REQUEST);
-		if (StringUtils.isBlank(eduDTO.getCertification()))
+		if (StringUtils.isBlank(eduDTO.getDegree()))
 			return new ResponseEntity(new Message("El certificado es obligatorio"), HttpStatus.BAD_REQUEST);
 		if (StringUtils.isBlank(eduDTO.getDescription()))
 			return new ResponseEntity(new Message("La descripción es obligatoria"), HttpStatus.BAD_REQUEST);
+		if (StringUtils.isBlank(eduDTO.getStartDate()) || StringUtils.isBlank(eduDTO.getEndDate()))
+			return new ResponseEntity<>(new Message("El periodo de estudio es obligatorio"), HttpStatus.BAD_REQUEST);
 		if (file != null && !ImageUtil.imgExtValidator(file.getContentType()))
 			return new ResponseEntity(new Message("La extensión de la imagen debe ser: jpg, jpeg, png o gif"), HttpStatus.BAD_REQUEST);
 
 		Education eduById = eduService.findById(id);
 		eduById.setInstitute(eduDTO.getInstitute());
-		eduById.setCertification(eduDTO.getCertification());
+		eduById.setDegree(eduDTO.getDegree());
 		eduById.setDescription(eduDTO.getDescription());
+		eduById.setStartDate(eduDTO.getStartDate());
+		eduById.setEndDate(eduDTO.getEndDate());
 		if (file != null) {
 			try {
 				Image img = new Image(

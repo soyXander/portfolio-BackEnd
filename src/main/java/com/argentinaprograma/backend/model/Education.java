@@ -16,8 +16,10 @@ public class Education {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	private String institute;
-	private String certification;
+	private String degree;
 	private String description;
+	private String startDate;
+	private String endDate;
 	@OneToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "image_id")
 	private Image image;
@@ -25,9 +27,9 @@ public class Education {
 	public Education() {
 	}
 
-	public Education(String institute, String certification, String description, Image image) {
+	public Education(String institute, String degree, String description, String startDate, String endDate, Image image) {
 		this.institute = institute;
-		this.certification = certification;
+		this.degree = degree;
 		this.description = description;
 		this.image = image;
 	}
