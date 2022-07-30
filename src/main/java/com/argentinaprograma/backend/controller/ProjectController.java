@@ -47,10 +47,12 @@ public class ProjectController {
 
 		if (StringUtils.isBlank(projDTO.getProject()))
 			return new ResponseEntity(new Message("El nombre del proyecto es obligatorio"), HttpStatus.BAD_REQUEST);
-		if (StringUtils.isBlank(projDTO.getTechnology()))
-			return new ResponseEntity(new Message("La tecnología es obligatoria"), HttpStatus.BAD_REQUEST);
+		if (StringUtils.isBlank(projDTO.getCreationDate()))
+			return new ResponseEntity(new Message("La fecha de creación es obligatoria"), HttpStatus.BAD_REQUEST);
 		if (StringUtils.isBlank(projDTO.getDescription()))
 			return new ResponseEntity(new Message("La descripción es obligatoria"), HttpStatus.BAD_REQUEST);
+		if (StringUtils.isBlank(projDTO.getLink()))
+			return new ResponseEntity(new Message("El link es obligatorio"), HttpStatus.BAD_REQUEST);
 		if (file != null && !ImageUtil.imgExtValidator(file.getContentType()))
 			return new ResponseEntity(new Message("La extension de la imagen debe ser: jpg, png o gif"), HttpStatus.BAD_REQUEST);
 
@@ -64,8 +66,9 @@ public class ProjectController {
 
 				Project project = new Project(
 						projDTO.getProject(),
-						projDTO.getTechnology(),
+						projDTO.getCreationDate(),
 						projDTO.getDescription(),
+						projDTO.getLink(),
 						img);
 				projectService.save(project);
 
@@ -77,8 +80,9 @@ public class ProjectController {
 		else {
 			Project project = new Project(
 					projDTO.getProject(),
-					projDTO.getTechnology(),
+					projDTO.getCreationDate(),
 					projDTO.getDescription(),
+					projDTO.getLink(),
 					null);
 			projectService.save(project);
 
@@ -105,17 +109,20 @@ public class ProjectController {
 			return new ResponseEntity(new Message("Proyecto no encontrado"), HttpStatus.NOT_FOUND);
 		if (StringUtils.isBlank(projDTO.getProject()))
 			return new ResponseEntity(new Message("El nombre del proyecto es obligatorio"), HttpStatus.BAD_REQUEST);
-		if (StringUtils.isBlank(projDTO.getTechnology()))
-			return new ResponseEntity(new Message("La tecnología es obligatoria"), HttpStatus.BAD_REQUEST);
+		if (StringUtils.isBlank(projDTO.getCreationDate()))
+			return new ResponseEntity(new Message("La fecha de creación es obligatoria"), HttpStatus.BAD_REQUEST);
 		if (StringUtils.isBlank(projDTO.getDescription()))
 			return new ResponseEntity(new Message("La descripción es obligatoria"), HttpStatus.BAD_REQUEST);
+		if (StringUtils.isBlank(projDTO.getLink()))
+			return new ResponseEntity(new Message("El link es obligatorio"), HttpStatus.BAD_REQUEST);
 		if (file != null && !ImageUtil.imgExtValidator(file.getContentType()))
 			return new ResponseEntity(new Message("La extension de la imagen debe ser: jpg, png o gif"), HttpStatus.BAD_REQUEST);
 
 		Project projById = projectService.findById(id);
 		projById.setProject(projDTO.getProject());
-		projById.setTechnology(projDTO.getTechnology());
+		projById.setCreationDate(projDTO.getCreationDate());
 		projById.setDescription(projDTO.getDescription());
+		projById.setLink(projDTO.getLink());
 		if (file != null) {
 			try {
 				if (projById.getImage() != null)

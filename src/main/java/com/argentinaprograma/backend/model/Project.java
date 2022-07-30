@@ -17,8 +17,9 @@ public class Project {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	private String project;
-	private String technology;
+	private String creationDate;
 	private String description;
+	private String link;
 	@OneToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "image_id")
 	private Image image;
@@ -26,10 +27,11 @@ public class Project {
 	public Project() {
 	}
 
-	public Project(String project, String technology, String description, Image image) {
+	public Project(String project, String creationDate, String description, String link, Image image) {
 		this.project = project;
-		this.technology = technology;
+		this.creationDate = creationDate;
 		this.description = description;
+		this.link = link;
 		this.image = image;
 	}
 }

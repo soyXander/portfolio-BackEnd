@@ -14,8 +14,9 @@ import javax.persistence.OneToOne;
 @Getter @Setter
 public class ProjectDTO {
 	private String project;
-	private String technology;
+	private String creationDate;
 	private String description;
+	private String link;
 	@OneToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "image_id")
 	private Image image;
@@ -23,10 +24,11 @@ public class ProjectDTO {
 	public ProjectDTO() {
 	}
 
-	public ProjectDTO(String project, String technology, String description, Image image) {
+	public ProjectDTO(String project, String creationDate, String description, String link, Image image) {
 		this.project = project;
-		this.technology = technology;
+		this.creationDate = creationDate;
 		this.description = description;
+		this.link = link;
 		this.image = image;
 	}
 }
