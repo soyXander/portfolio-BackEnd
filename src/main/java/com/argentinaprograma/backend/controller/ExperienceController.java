@@ -48,6 +48,8 @@ public class ExperienceController {
 			return new ResponseEntity(new Message("El puesto es obligatorio"), HttpStatus.BAD_REQUEST);
 		if (StringUtils.isBlank(expDTO.getDescription()))
 			return new ResponseEntity(new Message("La descripción es obligatoria"), HttpStatus.BAD_REQUEST);
+		if (StringUtils.isBlank(expDTO.getStartDate()) || StringUtils.isBlank(expDTO.getEndDate()))
+			return new ResponseEntity<>(new Message("El periodo de actividad es obligatorio"), HttpStatus.BAD_REQUEST);
 		if (file != null && !ImageUtil.imgExtValidator(file.getContentType()))
 			return new ResponseEntity(new Message("La extensión de la imagen debe ser: jpg, jpeg, png o gif"), HttpStatus.BAD_REQUEST);
 
@@ -63,6 +65,8 @@ public class ExperienceController {
 						expDTO.getCompany(),
 						expDTO.getPosition(),
 						expDTO.getDescription(),
+						expDTO.getStartDate(),
+						expDTO.getEndDate(),
 						img);
 				expService.save(experience);
 
@@ -76,6 +80,8 @@ public class ExperienceController {
 					expDTO.getCompany(),
 					expDTO.getPosition(),
 					expDTO.getDescription(),
+					expDTO.getStartDate(),
+					expDTO.getEndDate(),
 					null);
 			expService.save(experience);
 
@@ -106,6 +112,8 @@ public class ExperienceController {
 			return new ResponseEntity<>(new Message("El puesto es obligatorio"), HttpStatus.BAD_REQUEST);
 		if (StringUtils.isBlank(expDTO.getDescription()))
 			return new ResponseEntity<>(new Message("La descripción es obligatoria"), HttpStatus.BAD_REQUEST);
+		if (StringUtils.isBlank(expDTO.getStartDate()) || StringUtils.isBlank(expDTO.getEndDate()))
+			return new ResponseEntity<>(new Message("El periodo de actividad es obligatorio"), HttpStatus.BAD_REQUEST);
 		if (file != null && !ImageUtil.imgExtValidator(file.getContentType()))
 			return new ResponseEntity(new Message("La extensión de la imagen debe ser: jpg, jpeg, png o gif"), HttpStatus.BAD_REQUEST);
 
@@ -113,6 +121,8 @@ public class ExperienceController {
 		expById.setCompany(expDTO.getCompany());
 		expById.setPosition(expDTO.getPosition());
 		expById.setDescription(expDTO.getDescription());
+		expById.setStartDate(expDTO.getStartDate());
+		expById.setEndDate(expDTO.getEndDate());
 		if (file != null) {
 			try {
 				if (expById.getImage() != null)
