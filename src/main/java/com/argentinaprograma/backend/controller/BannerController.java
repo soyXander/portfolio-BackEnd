@@ -57,6 +57,7 @@ public class BannerController {
 
                 Banner banner = new Banner(img);
                 bannerService.save(banner);
+                return new ResponseEntity(new Message("El banner se guardó correctamente"), HttpStatus.OK);
             } catch (Exception e) {
                 return new ResponseEntity(new Message("Error al subir la imagen"), HttpStatus.BAD_REQUEST);
             }
@@ -64,12 +65,11 @@ public class BannerController {
         else {
             return new ResponseEntity(new Message("La imagen es obligatoria"), HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity(new Message("El banner se guardó correctamente"), HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/actualizar/{id}")
-    public ResponseEntity<?> update(@PathVariable Long id, @RequestParam(value = "image") MultipartFile file) throws IOException {
+    public ResponseEntity<?> update(@PathVariable Long id, @RequestParam(value = "image", required = false) MultipartFile file) throws IOException {
         if (file != null) {
             Banner bannerById = bannerService.findById(id);
             try {

@@ -56,38 +56,26 @@ public class ProjectController {
 		if (file != null && !ImageUtil.imgExtValidator(file.getContentType()))
 			return new ResponseEntity(new Message("La extension de la imagen debe ser: jpg, png o gif"), HttpStatus.BAD_REQUEST);
 
+		Image img = null;
 		if (file != null) {
 			try {
-				Image img = new Image(
+				img = new Image(
 						"proj-" + timeStamp + "-" + file.getOriginalFilename(),
 						file.getContentType(),
 						ImageUtil.compressImage(file.getBytes()));
 				imageService.saveImage(img);
-
-				Project project = new Project(
-						projDTO.getProject(),
-						projDTO.getCreationDate(),
-						projDTO.getDescription(),
-						projDTO.getLink(),
-						img);
-				projectService.save(project);
-
-				return new ResponseEntity(new Message("Proyecto guardado con éxito"), HttpStatus.OK);
 			} catch (Exception e) {
-				return new ResponseEntity(new Message("Error al guardar el proyecto"), HttpStatus.BAD_REQUEST);
+				return new ResponseEntity(new Message("Error al guardar la imagen de proyecto"), HttpStatus.BAD_REQUEST);
 			}
 		}
-		else {
-			Project project = new Project(
-					projDTO.getProject(),
-					projDTO.getCreationDate(),
-					projDTO.getDescription(),
-					projDTO.getLink(),
-					null);
-			projectService.save(project);
-
-			return new ResponseEntity(new Message("Proyecto guardado con éxito"), HttpStatus.OK);
-		}
+		Project project = new Project(
+				projDTO.getProject(),
+				projDTO.getCreationDate(),
+				projDTO.getDescription(),
+				projDTO.getLink(),
+				img);
+		projectService.save(project);
+		return new ResponseEntity(new Message("Proyecto guardado con éxito"), HttpStatus.OK);
 	}
 
 	@PreAuthorize("hasRole('ADMIN')")

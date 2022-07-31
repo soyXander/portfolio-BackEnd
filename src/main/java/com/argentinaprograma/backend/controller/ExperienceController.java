@@ -53,40 +53,29 @@ public class ExperienceController {
 		if (file != null && !ImageUtil.imgExtValidator(file.getContentType()))
 			return new ResponseEntity(new Message("La extensión de la imagen debe ser: jpg, jpeg, png o gif"), HttpStatus.BAD_REQUEST);
 
+		Image img = null;
 		if (file != null) {
 			try {
-				Image img = new Image(
+				img = new Image(
                         "exp-" + timeStamp + "-" + file.getOriginalFilename(),
 						file.getContentType(),
 						ImageUtil.compressImage(file.getBytes()));
 				imageService.saveImage(img);
-
-				Experience experience = new Experience(
-						expDTO.getCompany(),
-						expDTO.getPosition(),
-						expDTO.getDescription(),
-						expDTO.getStartDate(),
-						expDTO.getEndDate(),
-						img);
-				expService.save(experience);
-
-				return new ResponseEntity(new Message("Experiencia guardada con éxito"), HttpStatus.CREATED);
 			} catch (IOException e) {
-				return new ResponseEntity(new Message("Error al guardar la experiencia"), HttpStatus.BAD_REQUEST);
+				return new ResponseEntity(new Message("Error al guardar la imagen de experiencia"), HttpStatus.BAD_REQUEST);
 			}
 		}
-		else {
-			Experience experience = new Experience(
-					expDTO.getCompany(),
-					expDTO.getPosition(),
-					expDTO.getDescription(),
-					expDTO.getStartDate(),
-					expDTO.getEndDate(),
-					null);
-			expService.save(experience);
+
+		Experience experience = new Experience(
+				expDTO.getCompany(),
+				expDTO.getPosition(),
+				expDTO.getDescription(),
+				expDTO.getStartDate(),
+				expDTO.getEndDate(),
+				img);
+		expService.save(experience);
 
 			return new ResponseEntity(new Message("Experiencia guardada con éxito"), HttpStatus.CREATED);
-		}
 	}
 
 	@PreAuthorize("hasRole('ADMIN')")

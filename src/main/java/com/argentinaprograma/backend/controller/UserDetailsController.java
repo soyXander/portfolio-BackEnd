@@ -64,45 +64,32 @@ public class UserDetailsController {
         if (file != null && !ImageUtil.imgExtValidator(file.getContentType()))
             return new ResponseEntity(new Message("El formato de la imagen no es válido"), HttpStatus.BAD_REQUEST);
 
+        Image img = null;
         if (file != null) {
             try {
-                Image img = new Image(
+                img = new Image(
                         "user-" + timeStamp + file.getOriginalFilename(),
                         file.getContentType(),
                         ImageUtil.compressImage(file.getBytes()));
                 imageService.saveImage(img);
-
-                UserDetails userDetails = new UserDetails(
-                        userDetDTO.getFirstName(),
-                        userDetDTO.getLastName(),
-                        userDetDTO.getLocation(),
-                        userDetDTO.getTitle(),
-                        userDetDTO.getDescription(),
-                        img,
-                        userDetDTO.getFacebookId(),
-                        userDetDTO.getInstagramId(),
-                        userDetDTO.getGithubId(),
-                        userDetDTO.getLinkedinId(),
-                        userDetDTO.getTwitterId());
-                userDetService.save(userDetails);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-        } else {
-            UserDetails userDetails = new UserDetails(
-                    userDetDTO.getFirstName(),
-                    userDetDTO.getLastName(),
-                    userDetDTO.getLocation(),
-                    userDetDTO.getTitle(),
-                    userDetDTO.getDescription(),
-                    null,
-                    userDetDTO.getFacebookId(),
-                    userDetDTO.getInstagramId(),
-                    userDetDTO.getGithubId(),
-                    userDetDTO.getLinkedinId(),
-                    userDetDTO.getTwitterId());
-            userDetService.save(userDetails);
         }
+        UserDetails userDetails = new UserDetails(
+                userDetDTO.getFirstName(),
+                userDetDTO.getLastName(),
+                userDetDTO.getLocation(),
+                userDetDTO.getTitle(),
+                userDetDTO.getDescription(),
+                img,
+                userDetDTO.getFacebookId(),
+                userDetDTO.getInstagramId(),
+                userDetDTO.getGithubId(),
+                userDetDTO.getLinkedinId(),
+                userDetDTO.getTwitterId());
+        userDetService.save(userDetails);
+
         return new ResponseEntity(new Message("Detalles del usuario guardado"), HttpStatus.OK);
     }
 

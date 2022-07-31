@@ -74,7 +74,7 @@ public class EducationController {
 			eduDTO.getEndDate(),
 			img);
 		eduService.save(education);
-		return new ResponseEntity(new Message("Educación agregada"), HttpStatus.CREATED);
+		return new ResponseEntity(new Message("Educación guardada con éxito"), HttpStatus.CREATED);
 	}
 
 	@PreAuthorize("hasRole('ADMIN')")
